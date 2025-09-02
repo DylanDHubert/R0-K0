@@ -30,8 +30,8 @@ except ImportError as e:
         print("🔧 INSTALLING MISSING LANGCHAIN PACKAGES...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "langchain-community"])
         
-        # IN LANGCHAIN 0.3.x, VectorStoreRetrieverMemory IS IN langchain_community.memory
-        from langchain_community.memory import VectorStoreRetrieverMemory
+        # IN LANGCHAIN 0.3.x, VectorStoreRetrieverMemory IS IN langchain_community.memory.vectorstore
+        from langchain_community.memory.vectorstore import VectorStoreRetrieverMemory
         from langchain_community.vectorstores import Chroma, FAISS
         from langchain_openai import OpenAIEmbeddings
         from langchain_community.embeddings import HuggingFaceEmbeddings
