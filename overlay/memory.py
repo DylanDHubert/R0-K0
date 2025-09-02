@@ -336,7 +336,7 @@ class EpisodicMemory:
         self.run_dir = run_dir
         logger.info(f"SET RUN DIRECTORY FOR MEMORY STORAGE: {run_dir}")
     
-        def store(self, inputs: torch.Tensor, outputs: torch.Tensor, 
+    def store(self, inputs: torch.Tensor, outputs: torch.Tensor, 
                emotions: torch.Tensor, embedding: torch.Tensor, 
                attention_weights: Optional[torch.Tensor] = None) -> bool:
         """

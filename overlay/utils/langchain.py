@@ -18,9 +18,24 @@ try:
     from langchain.callbacks.manager import CallbackManagerForLLMRun
     from pydantic import BaseModel, Field
     LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
-    logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK IMPLEMENTATIONS")
+    print("✅ OLD LANGCHAIN IMPORTS SUCCESSFUL")
+except ImportError as e:
+    print(f"❌ OLD LANGCHAIN IMPORTS FAILED: {e}")
+    # TRY ALTERNATIVE IMPORT PATHS FOR NEWER VERSIONS
+    try:
+        from langchain_core.llms import LLM
+        from langchain_openai import ChatOpenAI
+        from langchain_anthropic import ChatAnthropic
+        from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+        from langchain_core.output_parsers import PydanticOutputParser, BaseOutputParser
+        from langchain_core.callbacks import CallbackManagerForLLMRun
+        from pydantic import BaseModel, Field
+        LANGCHAIN_AVAILABLE = True
+        print("✅ NEW LANGCHAIN IMPORTS SUCCESSFUL")
+    except ImportError as e2:
+        LANGCHAIN_AVAILABLE = False
+        print(f"❌ NEW LANGCHAIN IMPORTS ALSO FAILED: {e2}")
+        logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK IMPLEMENTATIONS")
 
 logger = logging.getLogger(__name__)
 
