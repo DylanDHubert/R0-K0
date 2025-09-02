@@ -19,9 +19,22 @@ try:
     from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
     from langchain.schema import Document
     LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
-    logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK MEMORY")
+    print("✅ OLD LANGCHAIN MEMORY IMPORTS SUCCESSFUL")
+except ImportError as e:
+    print(f"❌ OLD LANGCHAIN MEMORY IMPORTS FAILED: {e}")
+    # TRY ALTERNATIVE IMPORT PATHS FOR NEWER VERSIONS
+    try:
+        from langchain_core.memory import VectorStoreRetrieverMemory
+        from langchain_community.vectorstores import Chroma, FAISS
+        from langchain_openai import OpenAIEmbeddings
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+        from langchain_core.documents import Document
+        LANGCHAIN_AVAILABLE = True
+        print("✅ NEW LANGCHAIN MEMORY IMPORTS SUCCESSFUL")
+    except ImportError as e2:
+        LANGCHAIN_AVAILABLE = False
+        print(f"❌ NEW LANGCHAIN MEMORY IMPORTS ALSO FAILED: {e2}")
+        logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK MEMORY")
 
 logger = logging.getLogger(__name__)
 
