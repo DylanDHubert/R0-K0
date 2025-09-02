@@ -24,14 +24,21 @@ except ImportError as e:
     print(f"❌ OLD LANGCHAIN MEMORY IMPORTS FAILED: {e}")
     # TRY ALTERNATIVE IMPORT PATHS FOR NEWER VERSIONS
     try:
-        from langchain_core.memory import VectorStoreRetrieverMemory
-        from langchain_community.vectorstores import Chroma, FAISS
-        from langchain_openai import OpenAIEmbeddings
-        from langchain_community.embeddings import HuggingFaceEmbeddings
-        from langchain_core.documents import Document
+            # FIRST TRY TO INSTALL MISSING PACKAGES
+    import subprocess
+    import sys
+    print("🔧 INSTALLING MISSING LANGCHAIN PACKAGES...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "langchain-community"])
+    
+    # IN LANGCHAIN 0.3.x, VectorStoreRetrieverMemory IS IN langchain_community.memory
+    from langchain_community.memory import VectorStoreRetrieverMemory
+    from langchain_community.vectorstores import Chroma, FAISS
+    from langchain_openai import OpenAIEmbeddings
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+    from langchain_core.documents import Document
         LANGCHAIN_AVAILABLE = True
         print("✅ NEW LANGCHAIN MEMORY IMPORTS SUCCESSFUL")
-    except ImportError as e2:
+    except Exception as e2:
         LANGCHAIN_AVAILABLE = False
         print(f"❌ NEW LANGCHAIN MEMORY IMPORTS ALSO FAILED: {e2}")
         logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK MEMORY")

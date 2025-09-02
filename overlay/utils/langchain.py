@@ -23,6 +23,12 @@ except ImportError as e:
     print(f"❌ OLD LANGCHAIN IMPORTS FAILED: {e}")
     # TRY ALTERNATIVE IMPORT PATHS FOR NEWER VERSIONS
     try:
+        # FIRST TRY TO INSTALL MISSING PACKAGES
+        import subprocess
+        import sys
+        print("🔧 INSTALLING MISSING LANGCHAIN PACKAGES...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "langchain-openai", "langchain-anthropic"])
+        
         from langchain_core.llms import LLM
         from langchain_openai import ChatOpenAI
         from langchain_anthropic import ChatAnthropic
@@ -32,7 +38,7 @@ except ImportError as e:
         from pydantic import BaseModel, Field
         LANGCHAIN_AVAILABLE = True
         print("✅ NEW LANGCHAIN IMPORTS SUCCESSFUL")
-    except ImportError as e2:
+    except Exception as e2:
         LANGCHAIN_AVAILABLE = False
         print(f"❌ NEW LANGCHAIN IMPORTS ALSO FAILED: {e2}")
         logging.warning("LANGCHAIN NOT AVAILABLE - USING FALLBACK IMPLEMENTATIONS")
