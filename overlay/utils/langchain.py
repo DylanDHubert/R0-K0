@@ -29,7 +29,7 @@ except ImportError as e:
         print("🔧 INSTALLING MISSING LANGCHAIN PACKAGES...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "langchain-openai", "langchain-anthropic"])
         
-        from langchain_core.llms import LLM
+        from langchain_core.language_models import LLM
         from langchain_openai import ChatOpenAI
         from langchain_anthropic import ChatAnthropic
         from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
