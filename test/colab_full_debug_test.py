@@ -133,8 +133,8 @@ def test_emotion_engine_isolation():
         
         # CREATE CONFIG
         emotion_config = EmotionConfig(
-            dimension=6,
-            labels=["joy", "sadness", "anger", "fear", "surprise", "disgust"],
+            dimension=3,
+            labels=["happy", "sad", "scared"],
             decay_rate=0.95,
             bias_strength=0.3
         )
@@ -155,7 +155,7 @@ def test_emotion_engine_isolation():
         print(f"✅ PROB SHAPE: {probs.shape}")
         
         # TEST EMOTION UPDATE
-        test_gradient = torch.tensor([0.1, -0.2, 0.3, -0.1, 0.2, -0.3])
+        test_gradient = torch.tensor([0.1, -0.2, 0.3])
         emotion_engine.update(inputs=torch.tensor([0]), outputs=torch.tensor([0]), emotion_gradient=test_gradient)
         updated_state = emotion_engine.get_state()
         print(f"✅ UPDATED EMOTION STATE: {updated_state}")
@@ -222,7 +222,7 @@ def test_memory_system_isolation():
         # TEST MEMORY STORAGE
         test_inputs = torch.randn(128)
         test_outputs = torch.randn(128)
-        test_emotions = torch.tensor([0.1, -0.2, 0.3, -0.1, 0.2, -0.3])
+        test_emotions = torch.tensor([0.1, -0.2, 0.3])
         test_embedding = torch.randn(384)
         test_attention = torch.randn(64, 64)  # SIMPLE ATTENTION PATTERN
         
@@ -324,6 +324,9 @@ def test_emotion_memory_integration():
     print("=" * 50)
     
     try:
+        import torch
+        from sentence_transformers import SentenceTransformer
+        
         # GET ISOLATED COMPONENTS
         emotion_engine = test_emotion_engine_isolation()
         memory_system = test_memory_system_isolation()

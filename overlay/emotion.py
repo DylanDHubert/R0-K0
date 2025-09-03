@@ -96,9 +96,20 @@ class APIBasedInference(EmotionInference):
             from overlay.utils.langchain import create_llm, create_emotion_prompt
             
             self.llm = create_llm(self.langchain_config)
+            
+            # GET EMOTION LABELS FROM CONFIG OR USE DEFAULT ONES
+            emotion_labels = self.config.labels
+            if not emotion_labels:
+                # USE DEFAULT MEANINGFUL LABELS IF NONE PROVIDED
+                default_labels = ["happy", "sad", "scared"]
+                if self.config.dimension <= len(default_labels):
+                    emotion_labels = default_labels[:self.config.dimension]
+                else:
+                    emotion_labels = default_labels + [f"emotion_{i}" for i in range(len(default_labels), self.config.dimension)]
+            
             self.prompt_template = create_emotion_prompt(
                 self.config.dimension, 
-                getattr(self.config, 'labels', None)
+                emotion_labels
             )
             
             if self.llm:
@@ -149,7 +160,7 @@ class APIBasedInference(EmotionInference):
 @dataclass
 class EmotionConfig:
     """CONFIGURATION FOR EMOTION ENGINE"""
-    dimension: int = 6  # CONFIGURABLE EMOTIONAL DIMENSIONS
+    dimension: int = 3  # CONFIGURABLE EMOTIONAL DIMENSIONS
     decay_rate: float = 0.95  # EMOTIONAL DECAY PER TICK
     max_intensity: float = 1.0  # MAXIMUM EMOTIONAL INTENSITY
     bias_strength: float = 0.3  # HOW STRONGLY EMOTIONS BIAS OUTPUTS
@@ -160,10 +171,10 @@ class EmotionEngine:
     """
     MANAGES EMOTIONAL STATE VECTOR AND APPLIES EMOTIONAL BIAS TO MODEL OUTPUTS
     
-    EMOTIONS ARE MODELED AS A VECTOR OF STATE NODES (JOY, FEAR, CURIOSITY, ETC.)
+    EMOTIONS ARE MODELED AS A VECTOR OF STATE NODES (HAPPY, SAD, SCARED, ETC.)
     THAT BIAS EMBEDDINGS, LOGITS, AND MEMORY GATES.
     
-    DESIGN: 6D EMOTION SPACE PROJECTED ONTO INPUT EMBEDDINGS
+    DESIGN: 3D EMOTION SPACE PROJECTED ONTO INPUT EMBEDDINGS
     """
     
     def __init__(self, config: EmotionConfig = None):
@@ -172,8 +183,17 @@ class EmotionEngine:
         # INITIALIZE EMOTIONAL STATE VECTOR
         self.emotions = torch.zeros(self.config.dimension)
         
-        # EMOTION DIMENSION LABELS (N-DIMENSIONAL)
-        self.emotion_labels = [f"dim_{i}" for i in range(self.config.dimension)]
+        # EMOTION DIMENSION LABELS (N-DIMENSIONAL) - USE CONFIG LABELS OR DEFAULT MEANINGFUL ONES
+        if self.config.labels:
+            self.emotion_labels = self.config.labels
+        else:
+            # DEFAULT MEANINGFUL EMOTION LABELS FOR 3 DIMENSIONS
+            default_labels = ["happy", "sad", "scared"]
+            if self.config.dimension <= len(default_labels):
+                self.emotion_labels = default_labels[:self.config.dimension]
+            else:
+                # EXTEND WITH GENERIC LABELS IF MORE THAN 3 DIMENSIONS
+                self.emotion_labels = default_labels + [f"emotion_{i}" for i in range(len(default_labels), self.config.dimension)]
         
         # EMOTIONAL MEMORY - TRACKS INTENSITY OVER TIME
         self.emotion_history = []
@@ -181,7 +201,7 @@ class EmotionEngine:
         # EMOTION INFERENCE COMPONENT
         self.emotion_inference = None
         
-        logger.info(f"INITIALIZED EMOTION ENGINE WITH {self.config.dimension} DIMENSIONS")
+        logger.info(f"INITIALIZED EMOTION ENGINE WITH {self.config.dimension} DIMENSIONS: {', '.join(self.emotion_labels)}")
     
     def get_state(self) -> torch.Tensor:
         """RETURN CURRENT EMOTIONAL STATE VECTOR"""
@@ -221,7 +241,7 @@ class EmotionEngine:
         """
         APPLY EMOTIONAL BIAS TO EMBEDDINGS
         
-        DESIGN: PROJECT 6D EMOTION SPACE ONTO INPUT EMBEDDINGS
+        DESIGN: PROJECT 3D EMOTION SPACE ONTO INPUT EMBEDDINGS
         EMOTIONS MODIFY THE SEMANTIC SPACE OF INPUT REPRESENTATIONS
         """
         # PROJECT EMOTIONS TO EMBEDDING SPACE
@@ -318,6 +338,14 @@ class EmotionEngine:
     def set_emotion_inference(self, inference_component: EmotionInference):
         """SET EMOTION INFERENCE COMPONENT"""
         self.emotion_inference = inference_component
+        
+        # ENSURE THE INFERENCE COMPONENT HAS ACCESS TO THE EMOTION LABELS
+        if hasattr(inference_component, 'config') and hasattr(self, 'emotion_labels'):
+            # UPDATE THE INFERENCE COMPONENT'S CONFIG WITH OUR LABELS IF IT DOESN'T HAVE THEM
+            if not inference_component.config.labels:
+                inference_component.config.labels = self.emotion_labels.copy()
+                logger.info(f"UPDATED INFERENCE COMPONENT WITH EMOTION LABELS: {', '.join(self.emotion_labels)}")
+        
         logger.info(f"SET EMOTION INFERENCE COMPONENT: {type(inference_component).__name__}")
     
     def set_run_directory(self, run_dir: str):

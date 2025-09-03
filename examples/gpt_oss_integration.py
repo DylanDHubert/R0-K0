@@ -22,8 +22,8 @@ def main():
     
     # CONFIGURE COMPONENTS
     emotion_config = EmotionConfig(
-        dimension=6,
-        labels=["joy", "sadness", "anger", "fear", "surprise", "disgust"]
+        dimension=3,
+        labels=["happy", "sad", "scared"]
     )
     
     memory_config = MemoryConfig(

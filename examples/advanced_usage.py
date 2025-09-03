@@ -433,7 +433,7 @@ def run_advanced_example():
         # ADVANCED EMOTIONAL ANALYSIS
         print(f"\n😊 ADVANCED EMOTIONAL ANALYSIS:")
         emotions = final_summary['final_emotions']
-        emotion_labels = ["joy", "fear", "curiosity", "sadness", "anger", "surprise", "love", "confusion"]
+        emotion_labels = ["happy", "sad", "scared"]
         
         for i, (emotion, intensity) in enumerate(emotions.items()):
             if i < len(emotion_labels):

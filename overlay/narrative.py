@@ -130,7 +130,7 @@ class NarrativeEngine:
     def _analyze_emotional_context(self, emotions: torch.Tensor) -> Dict[str, Any]:
         """ANALYZE CURRENT EMOTIONAL CONTEXT FOR NARRATIVE"""
         # IDENTIFY DOMINANT EMOTIONS
-        emotion_labels = ["joy", "fear", "curiosity", "sadness", "anger", "surprise"]
+        emotion_labels = ["happy", "sad", "scared"]
         dominant_emotions = []
         
         for i, intensity in enumerate(emotions):

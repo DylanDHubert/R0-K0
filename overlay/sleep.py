@@ -44,6 +44,11 @@ class SleepCycle:
         
         logger.info(f"INITIALIZED SLEEP CYCLE WITH INTERVAL {self.config.sleep_interval}")
     
+    def set_memory_system(self, memory_system: Any):
+        """SET THE MEMORY SYSTEM FOR SLEEP CYCLE OPERATIONS"""
+        self.memory_system = memory_system
+        logger.info("SET MEMORY SYSTEM FOR SLEEP CYCLE")
+    
     def should_sleep(self, tick: int) -> bool:
         """CHECK IF IT'S TIME FOR A SLEEP CYCLE"""
         return tick % self.config.sleep_interval == 0

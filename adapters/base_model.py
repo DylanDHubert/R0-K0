@@ -117,7 +117,7 @@ class BaseModelAdapter(ABC):
             return prompt
         
         # CONVERT EMOTIONS TO TEXTUAL DESCRIPTION
-        emotion_labels = ["joy", "fear", "curiosity", "sadness", "anger", "surprise"]
+        emotion_labels = ["happy", "sad", "scared"]
         emotion_descriptions = []
         
         for i, intensity in enumerate(emotions):

@@ -52,12 +52,16 @@ class LangChainConfig:
                  model_name: str = "openai/gpt-oss-20b",
                  reasoning_level: str = "medium",
                  max_tokens: int = 512,
-                 temperature: float = 0.7):
+                 temperature: float = 0.7,
+                 api_key: str = None,
+                 max_retries: int = 3):
         self.provider = provider
         self.model_name = model_name
         self.reasoning_level = reasoning_level  # low, medium, high
         self.max_tokens = max_tokens
         self.temperature = temperature
+        self.api_key = api_key
+        self.max_retries = max_retries
 
 class EmotionOutputParser(BaseOutputParser):
     """PARSES EMOTION INFERENCE RESPONSES INTO N-DIMENSIONAL VECTORS"""
@@ -204,15 +208,12 @@ def create_emotion_prompt(dimension: int, labels: Optional[List[str]] = None) ->
         # FALLBACK TO STRING TEMPLATE
         return f"Analyze emotions and output {dimension} numbers between -1 and 1"
     
-    if labels:
-        label_text = ", ".join(labels)
-        prompt_text = f"""Analyze the emotional content of this text and output exactly {dimension} numbers between -1 and 1, representing: {label_text}
-
-Text: {{text}}
-
-Output {dimension} numbers separated by commas:"""
-    else:
-        prompt_text = f"""Analyze the emotional content of this text and output exactly {dimension} numbers between -1 and 1.
+    # REQUIRE LABELS TO BE PROVIDED
+    if not labels:
+        raise ValueError("EMOTION LABELS ARE REQUIRED - CANNOT CREATE EMOTION PROMPT WITHOUT EXPLICIT LABELS")
+    
+    label_text = ", ".join(labels)
+    prompt_text = f"""Analyze the emotional content of this text and output exactly {dimension} numbers between -1 and 1, representing: {label_text}
 
 Text: {{text}}
 
@@ -252,6 +253,8 @@ if not LANGCHAIN_AVAILABLE:
         return FallbackLLM()
     
     def create_emotion_prompt(dimension: int, labels: Optional[List[str]] = None) -> str:
+        if not labels:
+            raise ValueError("EMOTION LABELS ARE REQUIRED - CANNOT CREATE EMOTION PROMPT WITHOUT EXPLICIT LABELS")
         return f"Analyze emotions and output {dimension} numbers between -1 and 1"
     
     def call_llm_with_prompt(llm: FallbackLLM, prompt: str, text: str) -> str:
